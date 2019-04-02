@@ -5,10 +5,16 @@ import 'package:flutter_itunes/searchdialog.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_redux_dev_tools/flutter_redux_dev_tools.dart';
 import 'package:redux_dev_tools/redux_dev_tools.dart';
+import 'package:redux_thunk/redux_thunk.dart';
 
 void main() {
   runApp(FlutteriTunesApp(
-      DevToolsStore<AppState>(reducer, initialState: AppState())));
+      DevToolsStore<AppState>(
+          reducer,
+          initialState: AppState(),
+          middleware: [thunkMiddleware]
+      )
+  ));
 }
 
 class FlutteriTunesApp extends StatelessWidget {
@@ -18,7 +24,6 @@ class FlutteriTunesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(_store);
     return StoreProvider<AppState>(
         store: _store,
         child: MaterialApp(
@@ -40,22 +45,25 @@ class _TrackListState extends State<TrackList> {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, DevToolsStore<AppState>>(
-      converter: (store) => store,
-      builder: (_, store) {
-        return Scaffold(
-          appBar: AppBar(title: Text(widget.title)),
-          body: ListView(),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.search),
-            onPressed: () => _searchPressed(context),
-          ),
-          endDrawer: new Container(
-            width: 240.0,
-            color: Colors.white,
-            child: ReduxDevTools(store))
-        );
-      }
-    );
+        converter: (store) => store,
+        builder: (_, store) {
+          return Scaffold(
+              appBar: AppBar(title: Text(widget.title)),
+              body: ListView.builder(
+                itemCount: store.state.trackItems.length,
+                itemBuilder: (_, position) {
+                  return Text(store.state.trackItems[position].name);
+                },
+              ),
+              floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.search),
+                onPressed: () => _searchPressed(context),
+              ),
+              endDrawer: new Container(
+                  width: 240.0,
+                  color: Colors.white,
+                  child: ReduxDevTools(store)));
+        });
   }
 }
 

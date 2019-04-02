@@ -3,5 +3,6 @@ import 'package:flutter_itunes/trackitem.dart';
 
 @immutable
 class AppState {
+  var searchText = '';
   var trackItems = List<TrackItem>();
 }

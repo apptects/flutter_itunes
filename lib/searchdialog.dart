@@ -10,10 +10,12 @@ class SearchDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return new StoreConnector<AppState, OnSearchCallback>(
       converter: (store) {
-        return (searchText) => store.dispatch(getSearchResult);
+        return (searchText) {
+          store.dispatch(ChangeSearchTextAction(searchText));
+          store.dispatch(getSearchResult);
+        };
       },
       builder: (_, searchCallback) {
-        print("BLAAA");
         return _SearchDialogWidget(searchCallback);
       }
     );
