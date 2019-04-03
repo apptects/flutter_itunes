@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/actions.dart';
@@ -82,12 +83,12 @@ class _TrackListState extends State<TrackList> {
                     var trackItem = store.state.trackItems[position];
                     var isPlaying = store.state.activePlayingAudioUrl == trackItem.audioPreviewUrl;
                     var currentDuration = store.state.currentAudioDuration;
-                    var durationMinutes = (currentDuration.inMinutes % 60).toString().padLeft(2, '0');
+                    var durationMinutes = (currentDuration.inSeconds / 60).round().toString().padLeft(2, '0');
                     var durationSeconds = (currentDuration.inSeconds % 60).toString().padLeft(2, '0');
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Container(
                           width: 100,
@@ -98,52 +99,68 @@ class _TrackListState extends State<TrackList> {
                             ]
                           ),
                         ),
-                        Container(
-                          height: 120,
-                          padding: EdgeInsets.all(5.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  trackItem.artistName,
-                                  overflow: TextOverflow.fade,
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                              Text(
-                                trackItem.albumName,
-                                overflow: TextOverflow.fade,
-                                textScaleFactor: 0.8,),
-                              Padding(padding: EdgeInsets.all(5.0)),
-                              Text(
-                                trackItem.trackName,
-                                overflow: TextOverflow.ellipsis),
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        Expanded(
+                          child: Container(
+                              height: 120,
+                              padding: EdgeInsets.all(5.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  IconButton(
-                                    icon: Icon(Icons.link),
-                                    color: Theme.of(context).buttonColor,
-                                    onPressed: () => _openUrl(trackItem.trackViewUrl),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
-                                    color: Theme.of(context).buttonColor,
-                                    onPressed: () {
-                                      if(!isPlaying) {
-                                        _playTrack(trackItem.audioPreviewUrl);
-                                      } else {
-                                        _stopTrack();
-                                      }
-                                    }
-                                  ),
-                                  Text(isPlaying ? '$durationMinutes:$durationSeconds' : '',
-                                    textScaleFactor: 0.8, style: TextStyle(fontWeight: FontWeight.bold))
+                                  Text(
+                                      trackItem.artistName,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text(
+                                    trackItem.albumName,
+                                    overflow: TextOverflow.ellipsis,
+                                    textScaleFactor: 0.8,),
+                                  Padding(padding: EdgeInsets.all(5.0)),
+                                  Text(
+                                    trackItem.trackName,
+                                    overflow: TextOverflow.ellipsis),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.link),
+                                        color: Theme.of(context).buttonColor,
+                                        iconSize: 20,
+                                        onPressed: () => _openUrl(trackItem.trackViewUrl),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
+                                        color: Theme.of(context).buttonColor, iconSize: 20,
+                                        onPressed: () {
+                                          if(!isPlaying) {
+                                            _playTrack(trackItem.audioPreviewUrl);
+                                          } else {
+                                            _stopTrack();
+                                          }
+                                        }
+                                      ),
+                                      Text(isPlaying ? '$durationMinutes:$durationSeconds' : '',
+                                        textScaleFactor: 0.8, style: TextStyle(fontWeight: FontWeight.bold))
+                                    ],
+                                  )
                                 ],
-                              )
-                            ],
-                          ),
+                              ),
+                            )
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(5.0),
+                          height: 120,
+                          width: 80,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(trackItem.price,
+                                    textScaleFactor: 1.5,
+                                    style: TextStyle(fontWeight: FontWeight.bold))
+                              ]
+                          )
                         )
                       ],
                     );

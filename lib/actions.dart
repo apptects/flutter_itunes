@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_itunes/appstate.dart';
 import 'package:flutter_itunes/trackitem.dart';
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:redux/redux.dart';
 import 'package:redux_thunk/redux_thunk.dart';
@@ -51,7 +52,12 @@ ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
       final artworkUrl = v['artworkUrl100'] ?? '';
       final audioPreviewUrl = v['previewUrl'] ?? '';
       final trackViewUrl = v['trackViewUrl'] ?? '';
-      final trackDurationSeconds = v['trackTimeMillis'];
+      final trackDurationSeconds = (v['trackTimeMillis'] / 1000).round();
+
+      final currencySymbol = NumberFormat().simpleCurrencySymbol(v['currency'] ?? '');
+      final price = v['trackPrice'];
+
+      final priceString = '$currencySymbol $price';
 
       trackItems.add(TrackItem(
           collectionName,
@@ -60,7 +66,8 @@ ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
           artworkUrl,
           audioPreviewUrl,
           trackViewUrl,
-          trackDurationSeconds));
+          trackDurationSeconds,
+          priceString));
     }
   });
 

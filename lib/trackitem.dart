@@ -6,6 +6,7 @@ class TrackItem {
   String audioPreviewUrl;
   String trackViewUrl;
   int trackDurationSeconds;
+  String price;
 
   TrackItem(
       this.albumName,
@@ -14,5 +15,6 @@ class TrackItem {
       this.imageUrl,
       this.audioPreviewUrl,
       this.trackViewUrl,
-      this.trackDurationSeconds);
+      this.trackDurationSeconds,
+      this.price);
 }
