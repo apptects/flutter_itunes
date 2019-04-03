@@ -45,20 +45,22 @@ ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
 
   result['results'].forEach((v) {
     if(v['wrapperType'] == 'track' && v['kind'] == 'song') {
-      String collectionName = v['collectionName'] ?? '';
-      String artistName = v['artistName'] ?? '';
-      String trackName = v['trackName'] ?? '';
-      String artwortUrl = v['artworkUrl100'] ?? '';
-      String audioPreviewUrl = v['previewUrl'] ?? '';
-      String trackViewUrl = v['trackViewUrl'] ?? '';
+      final collectionName = v['collectionName'] ?? '';
+      final artistName = v['artistName'] ?? '';
+      final trackName = v['trackName'] ?? '';
+      final artworkUrl = v['artworkUrl100'] ?? '';
+      final audioPreviewUrl = v['previewUrl'] ?? '';
+      final trackViewUrl = v['trackViewUrl'] ?? '';
+      final trackDurationSeconds = v['trackTimeMillis'];
 
       trackItems.add(TrackItem(
           collectionName,
           artistName,
           trackName,
-          artwortUrl,
+          artworkUrl,
           audioPreviewUrl,
-          trackViewUrl));
+          trackViewUrl,
+          trackDurationSeconds));
     }
   });
 
