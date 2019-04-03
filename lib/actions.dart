@@ -17,6 +17,24 @@ class UpdateTrackItemsAction {
   UpdateTrackItemsAction(this.trackItems);
 }
 
+class PlayAudioUrlAction {
+  final String audioUrl;
+
+  PlayAudioUrlAction(this.audioUrl);
+}
+
+class StopAudioAction {
+}
+
+class CompletedAudioAction {
+}
+
+class AudioDurationChanged {
+  final Duration duration;
+
+  AudioDurationChanged(this.duration);
+}
+
 ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
   var response = await http.get(
     Uri.encodeFull('https://itunes.apple.com/search?term=' + store.state.searchText),

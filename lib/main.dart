@@ -1,5 +1,7 @@
-import 'package:audioplayer/audioplayer.dart';
+import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/appstate.dart';
 import 'package:flutter_itunes/audiodownloader.dart';
 import 'package:flutter_itunes/reducer.dart';
@@ -32,7 +34,8 @@ class FlutteriTunesApp extends StatelessWidget {
         child: MaterialApp(
             title: 'Flutter iTunes Search',
             theme: ThemeData(
-              primaryColor: Color(0xFFDE5C43)
+              primaryColor: Colors.white,
+              buttonColor: Colors.grey
             ),
             home: TrackList(title: 'iTunes Search')));
   }
@@ -50,6 +53,13 @@ class TrackList extends StatefulWidget {
 class _TrackListState extends State<TrackList> {
   var _audioDownloader = AudioDownloader();
   var _audioPlayer = AudioPlayer();
+  StreamSubscription<Duration> _audioDurationSubscription;
+  StreamSubscription<AudioPlayerState> _audioStateSubscription;
+
+  _TrackListState() {
+    _audioDurationSubscription = _audioPlayer.onAudioPositionChanged.listen(_onAudioDurationChange);
+    _audioStateSubscription = _audioPlayer.onPlayerStateChanged.listen(_onAudioPlayerStateChange);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +67,22 @@ class _TrackListState extends State<TrackList> {
         converter: (store) => store,
         builder: (_, store) {
           return Scaffold(
-              appBar: AppBar(title: Text(widget.title)),
+              appBar: AppBar(
+                  title: Text(widget.title),
+                  leading: IconButton(
+                    icon: Image.asset('assets/apptects.png', width: 100, height: 100),
+                    color: Theme.of(context).primaryColor,
+                    onPressed: () => _openUrl('https://www.apptects.de'),
+                    )
+              ),
               body: ListView.builder(
                 itemCount: store.state.trackItems.length,
                 itemBuilder: (_, position) {
                   var trackItem = store.state.trackItems[position];
+                  var isPlaying = store.state.activePlayingAudioUrl == trackItem.audioPreviewUrl;
+                  var currentDuration = store.state.currentAudioDuration;
+                  var durationMinutes = (currentDuration.inMinutes % 60).toString().padLeft(2, '0');
+                  var durationSeconds = (currentDuration.inSeconds % 60).toString().padLeft(2, '0');
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
@@ -100,14 +121,24 @@ class _TrackListState extends State<TrackList> {
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                RaisedButton(
-                                  child: Text('Play'),
-                                  onPressed: () => _playTrack(trackItem.audioPreviewUrl),
-                                ),
-                                RaisedButton(
-                                  child: Text('Open'),
+                                IconButton(
+                                  icon: Icon(Icons.link),
+                                  color: Theme.of(context).buttonColor,
                                   onPressed: () => _openUrl(trackItem.trackViewUrl),
-                                )
+                                ),
+                                IconButton(
+                                  icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
+                                  color: Theme.of(context).buttonColor,
+                                  onPressed: () {
+                                    if(!isPlaying) {
+                                      _playTrack(trackItem.audioPreviewUrl);
+                                    } else {
+                                      _stopTrack();
+                                    }
+                                  }
+                                ),
+                                Text(isPlaying ? '$durationMinutes:$durationSeconds' : '',
+                                  textScaleFactor: 0.8, style: TextStyle(fontWeight: FontWeight.bold))
                               ],
                             )
                           ],
@@ -119,6 +150,7 @@ class _TrackListState extends State<TrackList> {
               ),
               floatingActionButton: FloatingActionButton(
                 child: Icon(Icons.search),
+                foregroundColor: Theme.of(context).buttonColor,
                 backgroundColor: Theme.of(context).primaryColor,
                 onPressed: () => _searchPressed(context),
               ),
@@ -136,14 +168,30 @@ class _TrackListState extends State<TrackList> {
   _playTrack(String url) async {
     var previewFilename = await _audioDownloader.downloadUrl(url);
     print('Playing: ' + previewFilename);
+    await _audioPlayer.play(previewFilename, isLocal: true);
+
+    StoreProvider.of<AppState>(context).dispatch(PlayAudioUrlAction(url));
+  }
+
+  _stopTrack() async {
     await _audioPlayer.stop();
-    _audioPlayer.play(previewFilename, isLocal: true);
+    StoreProvider.of<AppState>(context).dispatch(StopAudioAction());
   }
 
   _openUrl(String url) async {
     print('Opening url: ' + url);
     if (await canLaunch(url)) {
       await launch(url);
+    }
+  }
+
+  _onAudioDurationChange(Duration duration) {
+    StoreProvider.of<AppState>(context).dispatch(AudioDurationChanged(duration));
+  }
+
+  _onAudioPlayerStateChange(AudioPlayerState state) {
+    if(state == AudioPlayerState.COMPLETED) {
+      StoreProvider.of<AppState>(context).dispatch(CompletedAudioAction());
     }
   }
 }

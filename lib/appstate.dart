@@ -5,4 +5,6 @@ import 'package:flutter_itunes/trackitem.dart';
 class AppState {
   var searchText = '';
   var trackItems = List<TrackItem>();
+  var activePlayingAudioUrl = '';
+  var currentAudioDuration = Duration();
 }
