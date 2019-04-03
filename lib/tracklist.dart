@@ -6,8 +6,7 @@ import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/audiodownloader.dart';
 import 'package:flutter_itunes/searchdialog.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_redux_dev_tools/flutter_redux_dev_tools.dart';
-import 'package:redux_dev_tools/redux_dev_tools.dart';
+import 'package:redux/redux.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TrackList extends StatefulWidget {
@@ -32,7 +31,7 @@ class _TrackListState extends State<TrackList> {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, DevToolsStore<AppState>>(
+    return StoreConnector<AppState, Store<AppState>>(
         converter: (store) => store,
         builder: (_, store) {
           return Scaffold(
@@ -140,11 +139,8 @@ class _TrackListState extends State<TrackList> {
                 foregroundColor: Theme.of(context).buttonColor,
                 backgroundColor: Theme.of(context).primaryColor,
                 onPressed: () => _searchPressed(context),
-              ),
-              endDrawer: new Container(
-                  width: 240.0,
-                  color: Colors.white,
-                  child: ReduxDevTools(store)));
+              )
+          );
         });
   }
 
