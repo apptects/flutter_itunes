@@ -25,8 +25,23 @@ ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
   Map<String, dynamic> result = jsonDecode(response.body);
   var trackItems = List<TrackItem>();
 
-  result["results"].forEach((v) {
-    trackItems.add(TrackItem(v["trackName"]));
+  result['results'].forEach((v) {
+    if(v['wrapperType'] == 'track' && v['kind'] == 'song') {
+      String collectionName = v['collectionName'] ?? '';
+      String artistName = v['artistName'] ?? '';
+      String trackName = v['trackName'] ?? '';
+      String artwortUrl = v['artworkUrl100'] ?? '';
+      String audioPreviewUrl = v['previewUrl'] ?? '';
+      String trackViewUrl = v['trackViewUrl'] ?? '';
+
+      trackItems.add(TrackItem(
+          collectionName,
+          artistName,
+          trackName,
+          artwortUrl,
+          audioPreviewUrl,
+          trackViewUrl));
+    }
   });
 
   store.dispatch(UpdateTrackItemsAction(trackItems));
