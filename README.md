@@ -1,4 +1,4 @@
-# flutter_itunes
+# Using Flutter with Redux for searching iTunes
 
 A new Flutter application.
 
