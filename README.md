@@ -2,7 +2,7 @@
 
 This app shows how you can use the Google's Flutter mobile app SDK together with a simple Redux architecture in order to access iTunes Search API. You can download the repository and run it on iOS and Android.
 
-![Running Flutter app on iPhone](https://raw.githubusercontent.com/apptects/flutter_itunes/master/screenshots/screenshot1.png?token=AsprYWD0bLe9xYEk-1ZK71nrJx8dJBQ3ks5cphyWwA%3D%3D)
+![Running Flutter app on iPhone](/screenshots/screenshot1.png)
 
 ## Getting Started
 
