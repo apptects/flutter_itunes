@@ -1,6 +1,7 @@
 class TrackItem {
   String artistName;
   String albumName;
+  int albumId;
   String trackName;
   String imageUrl;
   String audioPreviewUrl;
@@ -10,6 +11,7 @@ class TrackItem {
 
   TrackItem(
       this.albumName,
+      this.albumId,
       this.artistName,
       this.trackName,
       this.imageUrl,

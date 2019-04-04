@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_itunes/albumdetail.dart';
 import 'package:flutter_itunes/appstate.dart';
 import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/audiodownloader.dart';
@@ -97,6 +98,16 @@ class _TrackListState extends State<TrackList> {
                                           onPressed: () => _openUrl(trackItem.trackViewUrl),
                                         ),
                                         IconButton(
+                                          icon: Icon(Icons.more),
+                                          color: Theme.of(context).buttonColor,
+                                          iconSize: 20,
+                                          onPressed: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(trackItem)));
+                                            store.dispatch(AlbumDetailsAction(trackItem.albumId));
+                                            store.dispatch(getAlbumTracks);
+                                          },
+                                        ),
+                                        IconButton(
                                             icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
                                             color: Theme.of(context).buttonColor, iconSize: 20,
                                             onPressed: () {
@@ -169,7 +180,7 @@ class _TrackListState extends State<TrackList> {
   }
 
   _onAudioDurationChange(Duration duration) {
-    StoreProvider.of<AppState>(context).dispatch(AudioDurationChanged(duration));
+    StoreProvider.of<AppState>(context).dispatch(AudioDurationChangedAction(duration));
   }
 
   _onAudioPlayerStateChange(AudioPlayerState state) {

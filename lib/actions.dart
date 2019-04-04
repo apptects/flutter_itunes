@@ -18,6 +18,12 @@ class UpdateTrackItemsAction {
   UpdateTrackItemsAction(this.trackItems);
 }
 
+class AlbumTrackItemsAction {
+  final List<TrackItem> trackItems;
+
+  AlbumTrackItemsAction(this.trackItems);
+}
+
 class PlayAudioUrlAction {
   final String audioUrl;
 
@@ -30,10 +36,16 @@ class StopAudioAction {
 class CompletedAudioAction {
 }
 
-class AudioDurationChanged {
+class AudioDurationChangedAction {
   final Duration duration;
 
-  AudioDurationChanged(this.duration);
+  AudioDurationChangedAction(this.duration);
+}
+
+class AlbumDetailsAction {
+  final int albumId;
+
+  AlbumDetailsAction(this.albumId);
 }
 
 ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
@@ -41,35 +53,53 @@ ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
     Uri.encodeFull('https://itunes.apple.com/search?term=' + store.state.searchText),
   );
 
-  Map<String, dynamic> result = jsonDecode(response.body);
+  store.dispatch(UpdateTrackItemsAction(_decodeTrackItems(response.body)));
+};
+
+ThunkAction<AppState> getAlbumTracks = (Store<AppState> store) async {
+  print('https://itunes.apple.com/lookup?id=${store.state.albumId}&entity=song');
+
+  var response = await http.get(
+    Uri.encodeFull('https://itunes.apple.com/lookup?id=${store.state.albumId}&entity=song'),
+  );
+
+  store.dispatch(AlbumTrackItemsAction(_decodeTrackItems(response.body)));
+};
+
+List<TrackItem> _decodeTrackItems(String responseBody) {
+  Map<String, dynamic> result = jsonDecode(responseBody);
   var trackItems = List<TrackItem>();
 
-  result['results'].forEach((v) {
-    if(v['wrapperType'] == 'track' && v['kind'] == 'song') {
-      final collectionName = v['collectionName'] ?? '';
-      final artistName = v['artistName'] ?? '';
-      final trackName = v['trackName'] ?? '';
-      final artworkUrl = v['artworkUrl100'] ?? '';
-      final audioPreviewUrl = v['previewUrl'] ?? '';
-      final trackViewUrl = v['trackViewUrl'] ?? '';
-      final trackDurationSeconds = (v['trackTimeMillis'] / 1000).round();
+  result['results'].forEach((value) {
+    if(value['wrapperType'] == 'track' && value['kind'] == 'song') {
 
-      final currencySymbol = NumberFormat().simpleCurrencySymbol(v['currency'] ?? '');
-      final price = v['trackPrice'];
+      final collectionName = value['collectionName'] ?? '';
+      final collectionId = value['collectionId'];
+      final artistName = value['artistName'] ?? '';
+      final trackName = value['trackName'] ?? '';
+      final artworkUrl = value['artworkUrl100'] ?? '';
+      final audioPreviewUrl = value['previewUrl'] ?? '';
+      final trackViewUrl = value['trackViewUrl'] ?? '';
+      final trackDurationSeconds = (value['trackTimeMillis'] / 1000).round();
+
+      final currencySymbol = NumberFormat().simpleCurrencySymbol(value['currency'] ?? '');
+      final price = value['trackPrice'];
 
       final priceString = '$currencySymbol $price';
 
-      trackItems.add(TrackItem(
-          collectionName,
-          artistName,
-          trackName,
-          artworkUrl,
-          audioPreviewUrl,
-          trackViewUrl,
-          trackDurationSeconds,
-          priceString));
+      trackItems.add(
+          TrackItem(
+              collectionName,
+              collectionId,
+              artistName,
+              trackName,
+              artworkUrl,
+              audioPreviewUrl,
+              trackViewUrl,
+              trackDurationSeconds,
+              priceString));
     }
   });
 
-  store.dispatch(UpdateTrackItemsAction(trackItems));
-};
+  return trackItems;
+}

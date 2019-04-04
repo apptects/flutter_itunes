@@ -7,4 +7,6 @@ class AppState {
   var trackItems = List<TrackItem>();
   var activePlayingAudioUrl = '';
   var currentAudioDuration = Duration();
+  var albumId;
+  var albumItems = List<TrackItem>();
 }
