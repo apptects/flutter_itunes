@@ -9,7 +9,7 @@ void main() {
   runApp(FlutteriTunesApp(
       Store<AppState>(
           reducer,
-          initialState: AppState(),
+          initialState: AppState.initial(),
           middleware: [thunkMiddleware]
       )
   ));
