@@ -87,7 +87,7 @@ class _SearchResultListState extends State<SearchResultList> {
                                           onPressed: () => openUrl(trackItem.trackViewUrl),
                                         ),
                                         IconButton(
-                                          icon: Icon(Icons.more),
+                                          icon: Icon(Icons.dehaze),
                                           color: Theme.of(context).buttonColor,
                                           iconSize: 20,
                                           onPressed: () {
