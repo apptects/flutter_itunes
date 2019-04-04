@@ -19,9 +19,10 @@ class UpdateTrackItemsAction {
 }
 
 class AlbumTrackItemsAction {
+  final DateTime albumReleaseDate;
   final List<TrackItem> trackItems;
 
-  AlbumTrackItemsAction(this.trackItems);
+  AlbumTrackItemsAction(this.albumReleaseDate, this.trackItems);
 }
 
 class PlayAudioUrlAction {
@@ -61,8 +62,25 @@ ThunkAction<AppState> getAlbumTracks = (Store<AppState> store) async {
     Uri.encodeFull('https://itunes.apple.com/lookup?id=${store.state.albumId}&entity=song'),
   );
 
-  store.dispatch(AlbumTrackItemsAction(_decodeTrackItems(response.body)));
+  final releaseDate = _decodeAlbumReleaseDate(response.body);
+  final trackItems = _decodeTrackItems(response.body);
+
+  store.dispatch(AlbumTrackItemsAction(releaseDate, trackItems));
 };
+
+DateTime _decodeAlbumReleaseDate(String responseBody) {
+  Map<String, dynamic> result = jsonDecode(responseBody);
+
+  final resultItems = result['results'];
+
+  for(final value in resultItems) {
+    if(value['wrapperType'] == 'collection' && value['collectionType'] == 'Album') {
+      return (value['releaseDate'] != null ? DateTime.parse(value['releaseDate']) : DateTime.now());
+    }
+  }
+
+  return DateTime.now();
+}
 
 List<TrackItem> _decodeTrackItems(String responseBody) {
   Map<String, dynamic> result = jsonDecode(responseBody);
@@ -85,6 +103,8 @@ List<TrackItem> _decodeTrackItems(String responseBody) {
 
       final priceString = '$currencySymbol $price';
 
+      final releaseDate = value['releaseDate'] != null ? DateTime.parse(value['releaseDate']) : DateTime.now();
+
       trackItems.add(
           TrackItem(
               collectionName,
@@ -95,7 +115,8 @@ List<TrackItem> _decodeTrackItems(String responseBody) {
               audioPreviewUrl,
               trackViewUrl,
               trackDurationSeconds,
-              priceString));
+              priceString,
+              releaseDate));
     }
   });
 

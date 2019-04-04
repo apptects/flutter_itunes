@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/appstate.dart';
+import 'package:flutter_itunes/audioplayerwrapper.dart';
+import 'package:flutter_itunes/helper.dart';
 import 'package:flutter_itunes/trackitem.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:path/path.dart';
@@ -42,27 +44,92 @@ class AlbumDetail extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(_trackItem.albumName,
-                            textScaleFactor: 2.0,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor)),
-                          Text('By ' + _trackItem.artistName,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(_trackItem.albumName,
+                                    textScaleFactor: 2.0,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).primaryColor)),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.link),
+                                color: Theme.of(context).primaryColor,
+                                iconSize: 20,
+                                onPressed: () => openUrl(_trackItem.trackViewUrl),
+                              ),
+                            ],
+                          ),
+                          Text('By ${_trackItem.artistName}, ${store.state.albumItems.length} Tracks (${store.state.albumReleaseDate.year})',
                             textScaleFactor: 1.0,
                               style: TextStyle(
                                   color: Theme.of(context).primaryColor)
                           ),
+                          Padding(padding: EdgeInsets.all(10.0)),
+                          Text('Tracks',
+                              textScaleFactor: 1.5,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryColor)),
                           Expanded(
                             child: ListView.builder(
                                 itemCount: store.state.albumItems.length,
                                 itemBuilder: (_, position) {
-                                  //final trackItem = store.state
+                                  var trackItem = store.state.albumItems[position];
+                                  var durationHours = (trackItem.trackDurationSeconds / 60 / 60).round().toString().padLeft(2, '0');
+                                  var durationMinutes = ((trackItem.trackDurationSeconds / 60).round() % 60).toString().padLeft(2, '0');
+                                  var durationSeconds = (trackItem.trackDurationSeconds % 60).toString().padLeft(2, '0');
+                                  var isPlaying = store.state.activePlayingAudioUrl == trackItem.audioPreviewUrl;
                                   return Row(
                                     mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Text('1')
+                                      Container(
+                                        width: 30,
+                                        height: 20.0,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('${position+1}',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Theme.of(context).primaryColor)),
+                                          ],
+                                        )
+                                      ),
+                                      IconButton(
+                                          icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
+                                          color: Theme.of(context).primaryColor,
+                                          onPressed: () {
+                                            if(!isPlaying) {
+                                              AudioPlayerWrapper().playTrack(trackItem.audioPreviewUrl);
+                                            } else {
+                                              AudioPlayerWrapper().stopTrack();
+                                            }
+                                          }
+                                      ),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(trackItem.trackName,
+                                                style: TextStyle(
+                                                    color: Theme.of(context).primaryColor)),
+                                          ],
+                                        )
+                                      ),
+                                      Container(
+                                          width: 80,
+                                          child: Column(
+                                              children: [
+                                                Text('$durationHours:$durationMinutes:$durationSeconds',
+                                                    style: TextStyle(
+                                                        color: Theme.of(context).primaryColor))
+                                              ]
+                                          )
+                                      )
                                     ],
                                   );
                                 }),

@@ -1,14 +1,12 @@
-import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/albumdetail.dart';
 import 'package:flutter_itunes/appstate.dart';
+import 'package:flutter_itunes/audioplayerwrapper.dart';
 import 'package:flutter_itunes/actions.dart';
-import 'package:flutter_itunes/audiodownloader.dart';
+import 'package:flutter_itunes/helper.dart';
 import 'package:flutter_itunes/searchdialog.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SearchResultList extends StatefulWidget {
   final String title;
@@ -20,16 +18,6 @@ class SearchResultList extends StatefulWidget {
 }
 
 class _SearchResultListState extends State<SearchResultList> {
-  var _audioDownloader = AudioDownloader();
-  var _audioPlayer = AudioPlayer();
-  StreamSubscription<Duration> _audioDurationSubscription;
-  StreamSubscription<AudioPlayerState> _audioStateSubscription;
-
-  _SearchResultListState() {
-    _audioDurationSubscription = _audioPlayer.onAudioPositionChanged.listen(_onAudioDurationChange);
-    _audioStateSubscription = _audioPlayer.onPlayerStateChanged.listen(_onAudioPlayerStateChange);
-  }
-
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, Store<AppState>>(
@@ -41,7 +29,7 @@ class _SearchResultListState extends State<SearchResultList> {
                   leading: IconButton(
                     icon: Image.asset('assets/apptects.png', width: 100, height: 100),
                     color: Theme.of(context).primaryColor,
-                    onPressed: () => _openUrl('https://www.apptects.de'),
+                    onPressed: () => openUrl('https://www.apptects.de'),
                   )
               ),
               body: SafeArea(
@@ -95,7 +83,7 @@ class _SearchResultListState extends State<SearchResultList> {
                                           icon: Icon(Icons.link),
                                           color: Theme.of(context).buttonColor,
                                           iconSize: 20,
-                                          onPressed: () => _openUrl(trackItem.trackViewUrl),
+                                          onPressed: () => openUrl(trackItem.trackViewUrl),
                                         ),
                                         IconButton(
                                           icon: Icon(Icons.more),
@@ -112,9 +100,9 @@ class _SearchResultListState extends State<SearchResultList> {
                                             color: Theme.of(context).buttonColor, iconSize: 20,
                                             onPressed: () {
                                               if(!isPlaying) {
-                                                _playTrack(trackItem.audioPreviewUrl);
+                                                AudioPlayerWrapper().playTrack(trackItem.audioPreviewUrl);
                                               } else {
-                                                _stopTrack();
+                                                AudioPlayerWrapper().stopTrack();
                                               }
                                             }
                                         ),
@@ -157,35 +145,5 @@ class _SearchResultListState extends State<SearchResultList> {
 
   _searchPressed(BuildContext context) {
     showDialog(context: context, builder: (context) => SearchDialog());
-  }
-
-  _playTrack(String url) async {
-    var previewFilename = await _audioDownloader.downloadUrl(url);
-    print('Playing: ' + previewFilename);
-    await _audioPlayer.play(previewFilename, isLocal: true);
-
-    StoreProvider.of<AppState>(context).dispatch(PlayAudioUrlAction(url));
-  }
-
-  _stopTrack() async {
-    await _audioPlayer.stop();
-    StoreProvider.of<AppState>(context).dispatch(StopAudioAction());
-  }
-
-  _openUrl(String url) async {
-    print('Opening url: ' + url);
-    if (await canLaunch(url)) {
-      await launch(url);
-    }
-  }
-
-  _onAudioDurationChange(Duration duration) {
-    StoreProvider.of<AppState>(context).dispatch(AudioDurationChangedAction(duration));
-  }
-
-  _onAudioPlayerStateChange(AudioPlayerState state) {
-    if(state == AudioPlayerState.COMPLETED) {
-      StoreProvider.of<AppState>(context).dispatch(CompletedAudioAction());
-    }
   }
 }

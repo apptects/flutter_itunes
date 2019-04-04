@@ -6,6 +6,14 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 class AudioDownloader {
+  static final AudioDownloader _singleton = new AudioDownloader._internal();
+
+  factory AudioDownloader() {
+    return _singleton;
+  }
+
+  AudioDownloader._internal();
+
   Future<String> downloadUrl(String url) async {
     Uint8List rawData;
 

@@ -19,8 +19,10 @@ AppState reducer(AppState oldState, dynamic action) {
   } else if (action is AlbumDetailsAction) {
     return oldState.copyWith(albumId: action.albumId);
   } else if (action is AlbumTrackItemsAction) {
-    return oldState.copyWith(albumItems: action.trackItems);
+    return oldState.copyWith(albumItems: action.trackItems, albumReleaseDate: action.albumReleaseDate);
   }
+
+  print('Action of type: $action was NOT handled!');
 
   return oldState;
 }
