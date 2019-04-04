@@ -6,7 +6,9 @@ This app shows how you can use Google's Flutter mobile app SDK together with a s
 
 ## Getting Started
 
-This project is meant to learn about Flutter and to show how easy it is to create cross-platform apps.
+This project is meant to learn about Flutter and to show how easy it is to create cross-platform apps. Below you can see a short ideo of the app in action.
+
+![Running on iPhone](/screenshots/demo.gif)
 
 Resources:
 - [Flutter SDK](https://flutter.dev)
