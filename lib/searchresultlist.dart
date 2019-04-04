@@ -41,55 +41,9 @@ class _SearchResultListState extends State<SearchResultList> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 100,
-                            padding: EdgeInsets.all(5.0),
-                            child: Column(
-                                children: [
-                                  Image.network(trackItem.imageUrl)
-                                ]
-                            ),
-                          ),
-                          Expanded(
-                              child: Container(
-                                height: 120,
-                                padding: EdgeInsets.all(5.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        trackItem.artistName,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(fontWeight: FontWeight.bold)),
-                                    Text(
-                                      trackItem.albumName,
-                                      overflow: TextOverflow.ellipsis,
-                                      textScaleFactor: 0.8,),
-                                    Padding(padding: EdgeInsets.all(5.0)),
-                                    Text(
-                                        trackItem.trackName,
-                                        overflow: TextOverflow.ellipsis
-                                    ),
-                                    _TrackButtonRow(position)
-                                  ],
-                                ),
-                              )
-                          ),
-                          Container(
-                              padding: EdgeInsets.all(5.0),
-                              height: 120,
-                              width: 80,
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(trackItem.price,
-                                        textScaleFactor: 1.5,
-                                        style: TextStyle(fontWeight: FontWeight.bold))
-                                  ]
-                              )
-                          )
+                          _TrackArtwork(trackItem.imageUrl),
+                          _TrackDetails(trackItem),
+                          _TrackPrice(trackItem.price)
                         ],
                       );
                     },
@@ -111,25 +65,24 @@ class _SearchResultListState extends State<SearchResultList> {
 }
 
 class _TrackButtonRow extends StatelessWidget {
-  final int _position;
+  final TrackItem _trackItem;
 
-  _TrackButtonRow(this._position);
+  _TrackButtonRow(this._trackItem);
 
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, Store<AppState>>(
             converter: (store) => store,
             builder: (_, store) {
-              var trackItem = store.state.trackItems[_position];
-              var isPlaying = store.state.activePlayingAudioUrl == trackItem.audioPreviewUrl;
+              var isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _TrackButtonOpenUrl(trackItem.trackViewUrl),
-                  _TrackButtonShowAlbumDetails(trackItem),
-                  _TrackButtonPlayPause(trackItem),
+                  _TrackButtonOpenUrl(_trackItem.trackViewUrl),
+                  _TrackButtonShowAlbumDetails(_trackItem),
+                  _TrackButtonPlayPause(_trackItem),
                   _TrackDurationDisplay(store.state.currentAudioDuration, isPlaying)
                 ],
               );
@@ -212,5 +165,84 @@ class _TrackDurationDisplay extends StatelessWidget {
 
     return Text(_isPlaying ? '$durationMinutes:$durationSeconds' : '',
         textScaleFactor: 0.8, style: TextStyle(fontWeight: FontWeight.bold));
+  }
+}
+
+class _TrackDetails extends StatelessWidget {
+  final TrackItem _trackItem;
+
+  _TrackDetails(this._trackItem);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Container(
+          height: 120,
+          padding: EdgeInsets.all(5.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                  _trackItem.artistName,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                _trackItem.albumName,
+                overflow: TextOverflow.ellipsis,
+                textScaleFactor: 0.8,),
+              Padding(padding: EdgeInsets.all(5.0)),
+              Text(
+                  _trackItem.trackName,
+                  overflow: TextOverflow.ellipsis
+              ),
+              _TrackButtonRow(_trackItem)
+            ],
+          ),
+        )
+    );
+  }
+}
+
+class _TrackArtwork extends StatelessWidget {
+  final String _imageUrl;
+
+  _TrackArtwork(this._imageUrl);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      padding: EdgeInsets.all(5.0),
+      child: Column(
+          children: [
+            Image.network(_imageUrl)
+          ]
+      )
+    );
+  }
+}
+
+class _TrackPrice extends StatelessWidget {
+  final String _price;
+
+  _TrackPrice(this._price);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: EdgeInsets.all(5.0),
+        height: 120,
+        width: 80,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(_price,
+                  textScaleFactor: 1.5,
+                  style: TextStyle(fontWeight: FontWeight.bold))
+            ]
+        )
+    );
   }
 }
