@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/albumdetail.dart';
 import 'package:flutter_itunes/appstate.dart';
+import 'package:flutter_itunes/apptectsbutton.dart';
 import 'package:flutter_itunes/audioplayerwrapper.dart';
 import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/helper.dart';
 import 'package:flutter_itunes/rest.dart';
 import 'package:flutter_itunes/searchdialog.dart';
+import 'package:flutter_itunes/trackitem.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
@@ -27,21 +29,13 @@ class _SearchResultListState extends State<SearchResultList> {
           return Scaffold(
               appBar: AppBar(
                   title: Text(widget.title),
-                  leading: IconButton(
-                    icon: Image.asset('assets/apptects.png', width: 100, height: 100),
-                    color: Theme.of(context).primaryColor,
-                    onPressed: () => openUrl('https://www.apptects.de'),
-                  )
+                  leading: ApptectsButton()
               ),
               body: SafeArea(
                   child: ListView.builder(
                     itemCount: store.state.trackItems.length,
                     itemBuilder: (_, position) {
                       var trackItem = store.state.trackItems[position];
-                      var isPlaying = store.state.activePlayingAudioUrl == trackItem.audioPreviewUrl;
-                      var currentDuration = store.state.currentAudioDuration;
-                      var durationMinutes = (currentDuration.inSeconds / 60).round().toString().padLeft(2, '0');
-                      var durationSeconds = (currentDuration.inSeconds % 60).toString().padLeft(2, '0');
                       return Row(
                         mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,42 +69,9 @@ class _SearchResultListState extends State<SearchResultList> {
                                     Padding(padding: EdgeInsets.all(5.0)),
                                     Text(
                                         trackItem.trackName,
-                                        overflow: TextOverflow.ellipsis),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(Icons.link),
-                                          color: Theme.of(context).buttonColor,
-                                          iconSize: 20,
-                                          onPressed: () => openUrl(trackItem.trackViewUrl),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(Icons.dehaze),
-                                          color: Theme.of(context).buttonColor,
-                                          iconSize: 20,
-                                          onPressed: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(trackItem)));
-                                            store.dispatch(AlbumDetailsAction(trackItem.albumId));
-                                            store.dispatch(getAlbumTracks);
-                                          },
-                                        ),
-                                        IconButton(
-                                            icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
-                                            color: Theme.of(context).buttonColor, iconSize: 20,
-                                            onPressed: () {
-                                              if(!isPlaying) {
-                                                AudioPlayerWrapper().playTrack(trackItem.audioPreviewUrl);
-                                              } else {
-                                                AudioPlayerWrapper().stopTrack();
-                                              }
-                                            }
-                                        ),
-                                        Text(isPlaying ? '$durationMinutes:$durationSeconds' : '',
-                                            textScaleFactor: 0.8, style: TextStyle(fontWeight: FontWeight.bold))
-                                      ],
-                                    )
+                                        overflow: TextOverflow.ellipsis
+                                    ),
+                                    _TrackButtonRow(position)
                                   ],
                                 ),
                               )
@@ -146,5 +107,110 @@ class _SearchResultListState extends State<SearchResultList> {
 
   _searchPressed(BuildContext context) {
     showDialog(context: context, builder: (context) => SearchDialog());
+  }
+}
+
+class _TrackButtonRow extends StatelessWidget {
+  final int _position;
+
+  _TrackButtonRow(this._position);
+
+  @override
+  Widget build(BuildContext context) {
+    return StoreConnector<AppState, Store<AppState>>(
+            converter: (store) => store,
+            builder: (_, store) {
+              var trackItem = store.state.trackItems[_position];
+              var isPlaying = store.state.activePlayingAudioUrl == trackItem.audioPreviewUrl;
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _TrackButtonOpenUrl(trackItem.trackViewUrl),
+                  _TrackButtonShowAlbumDetails(trackItem),
+                  _TrackButtonPlayPause(trackItem),
+                  _TrackDurationDisplay(store.state.currentAudioDuration, isPlaying)
+                ],
+              );
+            }
+        );
+    }
+}
+
+class _TrackButtonOpenUrl extends StatelessWidget {
+  final String _trackUrl;
+
+  _TrackButtonOpenUrl(this._trackUrl);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        icon: Icon(Icons.link),
+        color: Theme.of(context).buttonColor,
+        iconSize: 20,
+        onPressed: () => openUrl(_trackUrl)
+    );
+  }
+}
+
+class _TrackButtonShowAlbumDetails extends StatelessWidget {
+  final TrackItem _trackItem;
+
+  _TrackButtonShowAlbumDetails(this._trackItem);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.dehaze),
+      color: Theme.of(context).buttonColor,
+      iconSize: 20,
+      onPressed: () {
+        final store = StoreProvider.of<AppState>(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(_trackItem)));
+        store.dispatch(AlbumDetailsAction(_trackItem.albumId));
+        store.dispatch(getAlbumTracks);
+      }
+    );
+  }
+}
+
+class _TrackButtonPlayPause extends StatelessWidget {
+  final TrackItem _trackItem;
+
+  _TrackButtonPlayPause(this._trackItem);
+
+  @override
+  Widget build(BuildContext context) {
+    final store = StoreProvider.of<AppState>(context);
+    var isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
+
+    return IconButton(
+        icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
+        color: Theme.of(context).buttonColor, iconSize: 20,
+        onPressed: () {
+          if(!isPlaying) {
+            AudioPlayerWrapper().playTrack(_trackItem.audioPreviewUrl);
+          } else {
+            AudioPlayerWrapper().stopTrack();
+          }
+        }
+    );
+  }
+}
+
+class _TrackDurationDisplay extends StatelessWidget {
+  final Duration _currentDuration;
+  final bool _isPlaying;
+
+  _TrackDurationDisplay(this._currentDuration, this._isPlaying);
+
+  @override
+  Widget build(BuildContext context) {
+    var durationMinutes = (_currentDuration.inSeconds / 60).round().toString().padLeft(2, '0');
+    var durationSeconds = (_currentDuration.inSeconds % 60).toString().padLeft(2, '0');
+
+    return Text(_isPlaying ? '$durationMinutes:$durationSeconds' : '',
+        textScaleFactor: 0.8, style: TextStyle(fontWeight: FontWeight.bold));
   }
 }
