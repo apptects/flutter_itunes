@@ -4,6 +4,7 @@ import 'package:flutter_itunes/appstate.dart';
 import 'package:flutter_itunes/audioplayerwrapper.dart';
 import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/helper.dart';
+import 'package:flutter_itunes/rest.dart';
 import 'package:flutter_itunes/searchdialog.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/appstate.dart';
+import 'package:flutter_itunes/rest.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
 typedef OnSearchCallback = Function(String searchText);
