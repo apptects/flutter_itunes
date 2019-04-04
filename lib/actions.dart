@@ -57,8 +57,6 @@ ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
 };
 
 ThunkAction<AppState> getAlbumTracks = (Store<AppState> store) async {
-  print('https://itunes.apple.com/lookup?id=${store.state.albumId}&entity=song');
-
   var response = await http.get(
     Uri.encodeFull('https://itunes.apple.com/lookup?id=${store.state.albumId}&entity=song'),
   );

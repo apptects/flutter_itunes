@@ -10,22 +10,22 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class TrackList extends StatefulWidget {
+class SearchResultList extends StatefulWidget {
   final String title;
 
-  TrackList({Key key, this.title}) : super(key: key);
+  SearchResultList({Key key, this.title}) : super(key: key);
 
   @override
-  _TrackListState createState() => _TrackListState();
+  _SearchResultListState createState() => _SearchResultListState();
 }
 
-class _TrackListState extends State<TrackList> {
+class _SearchResultListState extends State<SearchResultList> {
   var _audioDownloader = AudioDownloader();
   var _audioPlayer = AudioPlayer();
   StreamSubscription<Duration> _audioDurationSubscription;
   StreamSubscription<AudioPlayerState> _audioStateSubscription;
 
-  _TrackListState() {
+  _SearchResultListState() {
     _audioDurationSubscription = _audioPlayer.onAudioPositionChanged.listen(_onAudioDurationChange);
     _audioStateSubscription = _audioPlayer.onPlayerStateChanged.listen(_onAudioPlayerStateChange);
   }

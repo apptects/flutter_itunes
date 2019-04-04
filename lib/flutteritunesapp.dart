@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/appstate.dart';
-import 'package:flutter_itunes/tracklist.dart';
+import 'package:flutter_itunes/searchresultlist.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
@@ -19,6 +19,6 @@ class FlutteriTunesApp extends StatelessWidget {
                 primaryColor: Colors.white,
                 buttonColor: Colors.grey
             ),
-            home: TrackList(title: 'iTunes Search')));
+            home: SearchResultList(title: 'iTunes Search')));
   }
 }
