@@ -96,7 +96,7 @@ class _TrackButtonRow extends StatelessWidget {
             converter: (store) => store,
             builder: (_, store) {
               final isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
-              final backgroundImageUrl = dirname(_trackItem.imageUrl) + '/9000x9000-999' + extension(_trackItem.imageUrl);
+              final backgroundImageUrl = dirname(_trackItem.imageUrl) + '/1000x1000-999' + extension(_trackItem.imageUrl);
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.start,
