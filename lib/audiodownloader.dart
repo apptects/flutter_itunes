@@ -29,8 +29,6 @@ class AudioDownloader {
 
     await temporaryFile.writeAsBytes(rawData);
 
-    print('Written ${temporaryFile.path}');
-
     return temporaryFile.path;
   }
 }
