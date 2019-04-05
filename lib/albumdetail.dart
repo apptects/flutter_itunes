@@ -6,17 +6,13 @@ import 'package:flutter_itunes/audioplayerwrapper.dart';
 import 'package:flutter_itunes/helper.dart';
 import 'package:flutter_itunes/trackitem.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:path/path.dart';
 import 'package:redux/redux.dart';
 
 class AlbumDetail extends StatelessWidget {
-  TrackItem _trackItem;
-  String _highResAlbumArtworkUrl;
+  final TrackItem _trackItem;
+  final String _backgroundImageUrl;
 
-  AlbumDetail(TrackItem trackItem) {
-    this._trackItem = trackItem;
-    this._highResAlbumArtworkUrl = dirname(_trackItem.imageUrl) + '/9000x9000-999' + extension(_trackItem.imageUrl);
-  }
+  AlbumDetail(this._trackItem, this._backgroundImageUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +23,7 @@ class AlbumDetail extends StatelessWidget {
           appBar: AppBar(
             title: Text(_trackItem.albumName)
           ),
-          body: _AlbumDetailBackground(_highResAlbumArtworkUrl, _trackItem)
+          body: _AlbumDetailBackground(_backgroundImageUrl, _trackItem)
           );
         });
     }

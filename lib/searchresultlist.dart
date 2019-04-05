@@ -10,6 +10,7 @@ import 'package:flutter_itunes/rest.dart';
 import 'package:flutter_itunes/searchdialog.dart';
 import 'package:flutter_itunes/trackitem.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:path/path.dart';
 import 'package:redux/redux.dart';
 
 class SearchResultList extends StatefulWidget {
@@ -94,14 +95,15 @@ class _TrackButtonRow extends StatelessWidget {
     return StoreConnector<AppState, Store<AppState>>(
             converter: (store) => store,
             builder: (_, store) {
-              var isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
+              final isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
+              final backgroundImageUrl = dirname(_trackItem.imageUrl) + '/9000x9000-999' + extension(_trackItem.imageUrl);
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _TrackButtonOpenUrl(_trackItem.trackViewUrl),
-                  _TrackButtonShowAlbumDetails(_trackItem),
+                  _TrackButtonShowAlbumDetails(_trackItem, backgroundImageUrl),
                   _TrackButtonPlayPause(_trackItem),
                   _TrackDurationDisplay(store.state.currentAudioDuration, isPlaying)
                 ],
@@ -129,8 +131,9 @@ class _TrackButtonOpenUrl extends StatelessWidget {
 
 class _TrackButtonShowAlbumDetails extends StatelessWidget {
   final TrackItem _trackItem;
+  final String _backgroundImageUrl;
 
-  _TrackButtonShowAlbumDetails(this._trackItem);
+  _TrackButtonShowAlbumDetails(this._trackItem, this._backgroundImageUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +143,7 @@ class _TrackButtonShowAlbumDetails extends StatelessWidget {
       iconSize: 20,
       onPressed: () {
         final store = StoreProvider.of<AppState>(context);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(_trackItem)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(_trackItem, _backgroundImageUrl)));
         store.dispatch(AlbumDetailsAction(_trackItem.albumId));
         store.dispatch(getAlbumTracks);
       }
