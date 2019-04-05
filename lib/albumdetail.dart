@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/appstate.dart';
@@ -27,7 +28,10 @@ class AlbumDetail extends StatelessWidget {
             title: Text(_trackItem.albumName),
           ),
           body: Container(
-               decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(_highResAlbumArtworkUrl), fit: BoxFit.cover)),
+               decoration: BoxDecoration(
+                   image: DecorationImage(
+                   image: CachedNetworkImageProvider(_highResAlbumArtworkUrl),
+                   fit: BoxFit.cover)),
                child: Container(
                    decoration: BoxDecoration(
                      gradient: LinearGradient(

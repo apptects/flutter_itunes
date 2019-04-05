@@ -22,7 +22,7 @@ class AudioPlayerWrapper {
     var previewFilename = await _audioDownloader.downloadUrl(url);
     await _audioPlayer.play(previewFilename, isLocal: true);
 
-    store..dispatch(PlayAudioUrlAction(url));
+    store.dispatch(PlayAudioUrlAction(url));
   }
 
   stopTrack() async {
@@ -31,12 +31,12 @@ class AudioPlayerWrapper {
   }
 
   _onAudioDurationChange(Duration duration) {
-    store..dispatch(AudioDurationChangedAction(duration));
+    store.dispatch(AudioDurationChangedAction(duration));
   }
 
   _onAudioPlayerStateChange(AudioPlayerState state) {
     if(state == AudioPlayerState.COMPLETED) {
-      store..dispatch(CompletedAudioAction());
+      store.dispatch(CompletedAudioAction());
     }
   }
 }

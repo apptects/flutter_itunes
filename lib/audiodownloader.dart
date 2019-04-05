@@ -19,7 +19,8 @@ class AudioDownloader {
 
     try {
       rawData = await readBytes(url);
-    } on ClientException {
+    } on Exception catch(e) {
+      print('Failed to download $url ($e)');
       return '';
     }
 

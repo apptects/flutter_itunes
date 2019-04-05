@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_itunes/albumdetail.dart';
 import 'package:flutter_itunes/appstate.dart';
@@ -31,36 +32,55 @@ class _SearchResultListState extends State<SearchResultList> {
                   title: Text(widget.title),
                   leading: ApptectsButton()
               ),
-              body: SafeArea(
-                  child: ListView.builder(
-                    itemCount: store.state.trackItems.length,
-                    itemBuilder: (_, position) {
-                      var trackItem = store.state.trackItems[position];
-                      return Row(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          _TrackArtwork(trackItem.imageUrl),
-                          _TrackDetails(trackItem),
-                          _TrackPrice(trackItem.price)
-                        ],
-                      );
-                    },
-                  )
-              ),
-              floatingActionButton: FloatingActionButton(
-                child: Icon(Icons.search),
-                foregroundColor: Theme.of(context).buttonColor,
-                backgroundColor: Theme.of(context).primaryColor,
-                onPressed: () => _searchPressed(context),
-              )
+              body: _SearchResultList(store.state.trackItems),
+              floatingActionButton: _SearchButton()
           );
         });
+  }
+}
+
+class _SearchButton extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      child: Icon(Icons.search),
+      foregroundColor: Theme.of(context).buttonColor,
+      backgroundColor: Theme.of(context).primaryColor,
+      onPressed: () => _searchPressed(context),
+    );
   }
 
   _searchPressed(BuildContext context) {
     showDialog(context: context, builder: (context) => SearchDialog());
+  }
+}
+
+class _SearchResultList extends StatelessWidget {
+  final List<TrackItem> _trackItems;
+
+  _SearchResultList(this._trackItems);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+        child: ListView.builder(
+          itemCount: _trackItems.length,
+          itemBuilder: (_, position) {
+            var trackItem = _trackItems[position];
+            return Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _TrackArtwork(trackItem.imageUrl),
+                _TrackDetails(trackItem),
+                _TrackPrice(trackItem.price)
+              ],
+            );
+          },
+        )
+    );
   }
 }
 
@@ -136,7 +156,7 @@ class _TrackButtonPlayPause extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = StoreProvider.of<AppState>(context);
-    var isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
+    final isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
 
     return IconButton(
         icon: Icon(isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
@@ -216,7 +236,11 @@ class _TrackArtwork extends StatelessWidget {
       padding: EdgeInsets.all(5.0),
       child: Column(
           children: [
-            Image.network(_imageUrl)
+            CachedNetworkImage(
+              imageUrl: _imageUrl,
+              placeholder: (context, url) => new CircularProgressIndicator(),
+              errorWidget: (context, url, error) => new Icon(Icons.error),
+            )
           ]
       )
     );
