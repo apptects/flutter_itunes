@@ -1,18 +1,28 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/appstate.dart';
 import 'package:flutter_itunes/audioplayerwrapper.dart';
 import 'package:flutter_itunes/helper.dart';
+import 'package:flutter_itunes/main.dart';
+import 'package:flutter_itunes/rest.dart';
 import 'package:flutter_itunes/trackitem.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:path/path.dart';
 import 'package:redux/redux.dart';
 
 class AlbumDetail extends StatelessWidget {
-  final TrackItem _trackItem;
-  final String _backgroundImageUrl;
+  TrackItem _trackItem;
+  String _backgroundImageUrl;
 
-  AlbumDetail(this._trackItem, this._backgroundImageUrl);
+  AlbumDetail(TrackItem trackItem) {
+    _trackItem = trackItem;
+    _backgroundImageUrl = dirname(_trackItem.imageUrl) + '/1000x1000-999' + extension(_trackItem.imageUrl);
+
+    store.dispatch(AlbumDetailsAction(_trackItem.albumId));
+    store.dispatch(getAlbumTracks);
+  }
 
   @override
   Widget build(BuildContext context) {

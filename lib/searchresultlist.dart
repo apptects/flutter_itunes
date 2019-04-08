@@ -4,13 +4,10 @@ import 'package:flutter_itunes/albumdetail.dart';
 import 'package:flutter_itunes/appstate.dart';
 import 'package:flutter_itunes/apptectsbutton.dart';
 import 'package:flutter_itunes/audioplayerwrapper.dart';
-import 'package:flutter_itunes/actions.dart';
 import 'package:flutter_itunes/helper.dart';
-import 'package:flutter_itunes/rest.dart';
 import 'package:flutter_itunes/searchdialog.dart';
 import 'package:flutter_itunes/trackitem.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:path/path.dart';
 import 'package:redux/redux.dart';
 
 class SearchResultList extends StatefulWidget {
@@ -69,16 +66,22 @@ class _SearchResultList extends StatelessWidget {
           itemCount: _trackItems.length,
           itemBuilder: (_, position) {
             var trackItem = _trackItems[position];
-            return Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _TrackArtwork(trackItem.imageUrl),
-                _TrackDetails(trackItem),
-                _TrackPrice(trackItem.price)
-              ],
-            );
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(trackItem)));
+              },
+              child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _TrackArtwork(trackItem.imageUrl),
+                    _TrackDetails(trackItem),
+                    _TrackPrice(trackItem.price)
+                  ]
+              ),
+            ) ;
           },
         )
     );
@@ -96,14 +99,13 @@ class _TrackButtonRow extends StatelessWidget {
             converter: (store) => store,
             builder: (_, store) {
               final isPlaying = store.state.activePlayingAudioUrl == _trackItem.audioPreviewUrl;
-              final backgroundImageUrl = dirname(_trackItem.imageUrl) + '/1000x1000-999' + extension(_trackItem.imageUrl);
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _TrackButtonOpenUrl(_trackItem.trackViewUrl),
-                  _TrackButtonShowAlbumDetails(_trackItem, backgroundImageUrl),
+                  _TrackButtonShowAlbumDetails(_trackItem),
                   _TrackButtonPlayPause(_trackItem),
                   _TrackDurationDisplay(store.state.currentAudioDuration, isPlaying)
                 ],
@@ -131,9 +133,8 @@ class _TrackButtonOpenUrl extends StatelessWidget {
 
 class _TrackButtonShowAlbumDetails extends StatelessWidget {
   final TrackItem _trackItem;
-  final String _backgroundImageUrl;
 
-  _TrackButtonShowAlbumDetails(this._trackItem, this._backgroundImageUrl);
+  _TrackButtonShowAlbumDetails(this._trackItem);
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +143,7 @@ class _TrackButtonShowAlbumDetails extends StatelessWidget {
       color: Theme.of(context).buttonColor,
       iconSize: 20,
       onPressed: () {
-        final store = StoreProvider.of<AppState>(context);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(_trackItem, _backgroundImageUrl)));
-        store.dispatch(AlbumDetailsAction(_trackItem.albumId));
-        store.dispatch(getAlbumTracks);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumDetail(_trackItem)));
       }
     );
   }
