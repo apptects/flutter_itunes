@@ -26,9 +26,9 @@ class AlbumDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, Store<AppState>>(
-      converter: (store) => store,
-      builder: (_, store) {
+    return StoreConnector<AppState, AppState>(
+      converter: (store) => store.state,
+      builder: (_, state) {
         return Scaffold(
           appBar: AppBar(
             title: Text(_trackItem.albumName)
@@ -36,7 +36,7 @@ class AlbumDetail extends StatelessWidget {
           body: _AlbumDetailBackground(_backgroundImageUrl, _trackItem)
           );
         });
-    }
+  }
 }
 
 class _AlbumDetailBackground extends StatelessWidget {
@@ -76,9 +76,9 @@ class _AlbumDetailItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, Store<AppState>>(
-        converter: (store) => store,
-        builder: (_, store) {
+    return StoreConnector<AppState, AppState>(
+        converter: (store) => store.state,
+        builder: (_, state) {
           return Container(
             padding: EdgeInsets.all(10.0),
             child: Column(
@@ -90,10 +90,10 @@ class _AlbumDetailItems extends StatelessWidget {
                     _AlbumDetailOpenUrlButton(_selectedTrackItem.trackViewUrl),
                   ],
                 ),
-                _AlbumDetailArtistTracksReleaseDate(_selectedTrackItem.artistName, store.state.albumItems.length, store.state.albumReleaseDate.year),
+                _AlbumDetailArtistTracksReleaseDate(_selectedTrackItem.artistName, state.albumItems.length, state.albumReleaseDate.year),
                 Padding(padding: EdgeInsets.all(10.0)),
                 _AlbumTrackListHeader(),
-                _TrackList(store.state.albumItems, store.state.activePlayingAudioUrl)
+                _TrackList(state.albumItems, state.activePlayingAudioUrl)
               ],
             ),
           );

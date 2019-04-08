@@ -22,15 +22,15 @@ class SearchResultList extends StatefulWidget {
 class _SearchResultListState extends State<SearchResultList> {
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, Store<AppState>>(
-        converter: (store) => store,
-        builder: (_, store) {
+    return StoreConnector<AppState, List<TrackItem>>(
+        converter: (store) => store.state.trackItems,
+        builder: (_, trackItems) {
           return Scaffold(
               appBar: AppBar(
                   title: Text(widget.title),
                   leading: ApptectsButton()
               ),
-              body: _SearchResultList(store.state.trackItems),
+              body: _SearchResultList(trackItems),
               floatingActionButton: _SearchButton()
           );
         });

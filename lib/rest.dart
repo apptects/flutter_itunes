@@ -8,9 +8,7 @@ import 'package:redux/redux.dart';
 import 'package:redux_thunk/redux_thunk.dart';
 
 ThunkAction<AppState> getSearchResult = (Store<AppState> store) async {
-  var response = await http.get(
-    Uri.encodeFull('https://itunes.apple.com/search?term=' + store.state.searchText),
-  );
+  var response = await http.get(Uri.encodeFull('https://itunes.apple.com/search?term=' + store.state.searchText));
 
   store.dispatch(UpdateTrackItemsAction(_decodeTrackItems(_decodeResultItems(response.body))));
 };
